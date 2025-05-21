@@ -2,16 +2,14 @@ import mongoose from 'mongoose'
 
 // Initialize the cached object on the global scope if it doesn't exist
 if (!global.mongoose) {
-    global.mongoose = { conn: null, promise: null }
+    global.mongoose = {conn: null, promise: null}
 }
 
 export default async function connectDB() {
-    // Always reference the global object directly
     if (global.mongoose.conn) {
         return global.mongoose.conn
     }
 
-    // Check if MONGODB_URI is defined
     if (!process.env.MONGODB_URI) {
         throw new Error('MONGODB_URI environment variable is not defined')
     }
