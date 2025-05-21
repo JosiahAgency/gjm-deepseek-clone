@@ -1,32 +1,18 @@
 import mongoose from 'mongoose'
 
-if (!global.mongoose) {
-    global.mongoose = {conn: null, promise: null}
-}
+let cached = global.mongoose || {conn: null, promise: null}
 
 export default async function connectDB() {
-    if (global.mongoose.conn) {
-        return global.mongoose.conn
-    }
-
-    if (!process.env.MONGODB_URI) {
-        throw new Error('MONGODB_URI environment variable is not defined')
-    }
-
-    if (!global.mongoose.promise) {
-        global.mongoose.promise = mongoose.connect(process.env.MONGODB_URI)
-            .then((mongoose) => {
-                return mongoose
-            })
+    if (cached.conn) return cached.conn
+    if (!cached.promise) {
+        cached.promise = mongoose.connect(process.env.MONGODB_URI).then((mongoose) => mongoose)
     }
 
     try {
-        global.mongoose.conn = await global.mongoose.promise
+        cached.conn = await cached.promise
     } catch (e) {
-        global.mongoose.promise = null
-        console.error('Error connecting to MongoDB:', e.message)
-        throw e
+        console.log('Error connecting to mongodb:-> ', e.message)
     }
 
-    return global.mongoose.conn
+    return cached.conn
 }
